@@ -1,0 +1,7 @@
+services:
+  raporty-czytelnikow:
+    build: .
+    environment:
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN?}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID?}
+    restart: unless-stopped
