@@ -25,7 +25,7 @@ async fn main() {
 
         let html = response.text().await.unwrap();
 
-        let mut reports = html
+        let reports = html
             .rmatch_indices(ID_MARKER)
             .map(|(index, _)| {
                 let date_start_index = index + ID_MARKER.len();
@@ -60,8 +60,8 @@ async fn main() {
             }
         }
 
-        if let Some((_, latest_report_id)) = reports.pop() {
-            last_id = Some(latest_report_id);
+        if let Some(highest_report_id) = reports.into_iter().map(|(_, report_id)| report_id).max() {
+            last_id = Some(highest_report_id);
         }
 
         tokio::time::sleep(Duration::from_secs(60)).await;
