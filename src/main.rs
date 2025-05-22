@@ -3,6 +3,7 @@ use std::time::Duration;
 
 use reqwest::Client;
 
+const URL: &str = "https://www.trojmiasto.pl/raport/ajax/ReportList/?x-force-cache=1&tags=120&last_report_date_time=&page=1";
 const ID_MARKER: &str = "data-raport--item-id-value=\"";
 const URL_MARKER: &str = "<a rel=\"nofollow\" href=\"";
 
@@ -10,18 +11,15 @@ const URL_MARKER: &str = "<a rel=\"nofollow\" href=\"";
 async fn main() {
     dotenvy::dotenv().ok();
 
+    let user_agent = env::var("USER_AGENT").unwrap();
     let telegram_token = env::var("TELEGRAM_TOKEN").unwrap();
     let chat_id = env::var("TELEGRAM_CHAT_ID").unwrap();
 
-    let client = Client::new();
+    let client = Client::builder().user_agent(user_agent).build().unwrap();
     let mut last_id = None;
 
     loop {
-        let response = client
-            .get("https://www.trojmiasto.pl/raport/ajax/ReportList/?tags=120")
-            .send()
-            .await
-            .unwrap();
+        let response = client.get(URL).send().await.unwrap();
 
         let html = response.text().await.unwrap();
 
@@ -64,6 +62,6 @@ async fn main() {
             last_id = Some(highest_report_id);
         }
 
-        tokio::time::sleep(Duration::from_secs(60)).await;
+        tokio::time::sleep(Duration::from_secs(300)).await;
     }
 }
